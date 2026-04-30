@@ -1,0 +1,168 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ──────────────────────────────────────────────
+
+enum CredentialType {
+  OPENAI
+  ANTHROPIC
+  GEMINI
+}
+
+enum NodeType {
+  INITIAL
+  MANUAL_TRIGGER
+  HTTP_REQUEST
+  GOOGLE_FORM_TRIGGER
+  STRIPE_TRIGGER
+  GEMINI
+  OPENAI
+  ANTHROPIC
+  DISCORD
+  SLACK
+}
+
+enum ExecutionStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+// ── Auth models (managed by better-auth) ───────────────
+
+model User {
+  id            String    @id @map("_id")
+  name          String
+  email         String    @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+
+  accounts      Account[]
+  sessions      Session[]
+  workflows     Workflow[]
+  credentials   Credential[]
+}
+
+model Session {
+  id        String   @id @map("_id")
+  userId    String
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String  @id @map("_id")
+  accountId         String
+  providerId        String
+  userId            String
+  accessToken       String?
+  refreshToken      String?
+  idToken           String?
+  accessTokenExpiresAt DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope             String?
+  password          String?
+  createdAt         DateTime
+  updatedAt         DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id        String   @id @map("_id")
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+}
+
+// ── Domain models ──────────────────────────────────────
+
+model Workflow {
+  id        String   @id @map("_id")
+  name      String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nodes       Node[]
+  connections Connection[]
+  executions  Execution[]
+}
+
+model Node {
+  id           String   @id @map("_id")
+  type         NodeType
+  data         Json
+  positionX    Float
+  positionY    Float
+  workflowId   String
+  credentialId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  workflow     Workflow    @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  credential   Credential? @relation(fields: [credentialId], references: [id], onDelete: SetNull)
+  fromConnections Connection[] @relation("FromNode")
+  toConnections   Connection[] @relation("ToNode")
+}
+
+model Connection {
+  id         String @id @map("_id")
+  fromNodeId String
+  toNodeId   String
+  fromOutput String @default("default")
+  toInput    String @default("default")
+  workflowId String
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  fromNode Node    @relation("FromNode", fields: [fromNodeId], references: [id], onDelete: Cascade)
+  toNode   Node    @relation("ToNode", fields: [toNodeId], references: [id], onDelete: Cascade)
+
+  @@unique([fromNodeId, toNodeId, fromOutput, toInput])
+}
+
+model Credential {
+  id        String         @id @map("_id")
+  name      String
+  type      CredentialType
+  value     String
+  userId    String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  nodes Node[]
+}
+
+model Execution {
+  id             String          @id @map("_id")
+  workflowId     String
+  inngestEventId String          @unique
+  status         ExecutionStatus
+  output         Json?
+  error          String?
+  errorStack     String?
+  startedAt      DateTime        @default(now())
+  completedAt    DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
