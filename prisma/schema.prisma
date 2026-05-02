@@ -60,6 +60,8 @@ model Session {
   token     String   @unique
   ipAddress String?
   userAgent String?
+  createdAt DateTime
+  updatedAt DateTime
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
