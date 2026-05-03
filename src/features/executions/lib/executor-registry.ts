@@ -1,28 +1,25 @@
 import { NodeType } from "@prisma/client";
 import { type NodeExecutor } from "../types";
 import { passthroughExecutor } from "./passthrough-executor";
-import { makeNotImplementedExecutor } from "./not-implemented-executor";
-import { NODE_TYPE_LABELS } from "@/config/node-types";
+import { httpRequestExecutor } from "../components/http-request/executor";
+import { openAiExecutor } from "../components/openai/executor";
+import { anthropicExecutor } from "../components/anthropic/executor";
+import { geminiExecutor } from "../components/gemini/executor";
+import { discordExecutor } from "../components/discord/executor";
+import { slackExecutor } from "../components/slack/executor";
 
-// Registry of all executors. Triggers + INITIAL pass through;
-// action nodes throw NonRetriableError until Tahap 7 implements them.
+// Triggers + INITIAL pass through. Action nodes have real executors.
 export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.INITIAL]: passthroughExecutor,
   [NodeType.MANUAL_TRIGGER]: passthroughExecutor,
   [NodeType.GOOGLE_FORM_TRIGGER]: passthroughExecutor,
   [NodeType.STRIPE_TRIGGER]: passthroughExecutor,
-  [NodeType.HTTP_REQUEST]: makeNotImplementedExecutor(
-    NODE_TYPE_LABELS[NodeType.HTTP_REQUEST],
-  ),
-  [NodeType.OPENAI]: makeNotImplementedExecutor(NODE_TYPE_LABELS[NodeType.OPENAI]),
-  [NodeType.ANTHROPIC]: makeNotImplementedExecutor(
-    NODE_TYPE_LABELS[NodeType.ANTHROPIC],
-  ),
-  [NodeType.GEMINI]: makeNotImplementedExecutor(NODE_TYPE_LABELS[NodeType.GEMINI]),
-  [NodeType.DISCORD]: makeNotImplementedExecutor(
-    NODE_TYPE_LABELS[NodeType.DISCORD],
-  ),
-  [NodeType.SLACK]: makeNotImplementedExecutor(NODE_TYPE_LABELS[NodeType.SLACK]),
+  [NodeType.HTTP_REQUEST]: httpRequestExecutor as NodeExecutor,
+  [NodeType.OPENAI]: openAiExecutor as NodeExecutor,
+  [NodeType.ANTHROPIC]: anthropicExecutor as NodeExecutor,
+  [NodeType.GEMINI]: geminiExecutor as NodeExecutor,
+  [NodeType.DISCORD]: discordExecutor as NodeExecutor,
+  [NodeType.SLACK]: slackExecutor as NodeExecutor,
 };
 
 export function getExecutor(type: NodeType): NodeExecutor {
