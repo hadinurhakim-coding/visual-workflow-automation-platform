@@ -24,6 +24,7 @@
     "better-auth": "^1.6.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cryptr": "^6.4.0",
     "cuid": "^3.0.0",
     "inngest": "^3.54.2",
     "jotai": "^2.19.1",

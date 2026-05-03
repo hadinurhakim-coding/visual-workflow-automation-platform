@@ -72,8 +72,10 @@ export const workflowsRouter = createTRPCRouter({
         id: c.id,
         source: c.fromNodeId,
         target: c.toNodeId,
-        sourceHandle: c.fromOutput,
-        targetHandle: c.toInput,
+        // "default" is the schema default; surface as null so ReactFlow's edge
+        // dedupe matches new edges drawn from unnamed handles.
+        sourceHandle: c.fromOutput === "default" ? null : c.fromOutput,
+        targetHandle: c.toInput === "default" ? null : c.toInput,
       }));
 
       return {

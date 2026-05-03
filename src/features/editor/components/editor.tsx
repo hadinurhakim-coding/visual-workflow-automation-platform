@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import cuid from "cuid";
 import { useSetAtom } from "jotai";
 import {
   Background,
@@ -47,7 +48,8 @@ function EditorInner({ workflowId, initialNodes, initialEdges }: EditorProps) {
     [],
   );
   const onConnect = useCallback(
-    (params: Connection) => setEdges((es) => addEdge(params, es)),
+    (params: Connection) =>
+      setEdges((es) => addEdge({ ...params, id: cuid() }, es)),
     [],
   );
 
