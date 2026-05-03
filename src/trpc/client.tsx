@@ -6,6 +6,7 @@ import { createTRPCReact } from "@trpc/react-query";
 import { httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
 import { useState, type ReactNode } from "react";
+import { Provider as JotaiProvider } from "jotai";
 import type { AppRouter } from "./routers/_app";
 
 // Create the tRPC React hook
@@ -41,7 +42,9 @@ export function TRPCReactProvider({ children }: { children: ReactNode }) {
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <JotaiProvider>{children}</JotaiProvider>
+      </QueryClientProvider>
     </trpc.Provider>
   );
 }

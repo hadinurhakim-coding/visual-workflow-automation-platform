@@ -1,9 +1,9 @@
 // src/trpc/routers/_app.ts
 import { createTRPCRouter } from "../init";
+import { workflowsRouter } from "@/features/workflows/server/routers";
 
-// We'll add sub-routers here as we build features
-// For now, it's an empty root router
-
-export const appRouter = createTRPCRouter({});
+export const appRouter = createTRPCRouter({
+  workflows: workflowsRouter,
+});
 
 export type AppRouter = typeof appRouter;
