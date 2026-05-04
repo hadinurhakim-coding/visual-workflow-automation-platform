@@ -28,7 +28,7 @@ import type { DiscordData } from "./executor";
 const schema = z.object({
   variableName: z.string().min(1, "Variable name is required"),
   webhookUrl: z.string().url("Must be a valid URL"),
-  username: z.string().default(""),
+  username: z.string(),
   content: z.string().min(1, "Message content is required"),
 });
 

@@ -37,7 +37,7 @@ const schema = z.object({
   variableName: z.string().min(1, "Variable name is required"),
   endpoint: z.string().min(1, "Endpoint URL is required"),
   method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
-  body: z.string().default(""),
+  body: z.string(),
 });
 
 type Values = z.infer<typeof schema>;

@@ -46,8 +46,8 @@ const OPENAI_MODELS = [
 const schema = z.object({
   variableName: z.string().min(1, "Variable name is required"),
   credentialId: z.string().min(1, "Credential is required"),
-  model: z.string().min(1).default("gpt-4o-mini"),
-  systemPrompt: z.string().default(""),
+  model: z.string().min(1),
+  systemPrompt: z.string(),
   userPrompt: z.string().min(1, "User prompt is required"),
 });
 
